@@ -1,0 +1,49 @@
+name: Update Germinares Dashboard v2
+
+on:
+  schedule:
+    # Todos os dias úteis às 09:00 BRT (12:00 UTC)
+    - cron: '0 12 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  update-dashboard:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install requests
+      
+      - name: Extract Jira + GitHub Data (v2 with DORA + Evolution)
+        env:
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          PYTHONIOENCODING: utf-8
+          LC_ALL: C.UTF-8
+          LANG: C.UTF-8
+        run: |
+          python scripts/extract_v2.py
+      
+      - name: Generate Dashboard HTML v2
+        run: |
+          python scripts/generate_html_v2.py
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          force_orphan: true
