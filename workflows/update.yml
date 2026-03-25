@@ -1,0 +1,39 @@
+name: Update Dashboard Daily
+
+on:
+  schedule:
+    - cron: '0 12 * * *'  # Todo dia 9h BRT (12h UTC)
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install deps
+        run: pip install requests
+      
+      - name: Extract and generate dashboard
+        env:
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: python scripts/extract_and_generate.py
+      
+      - name: Commit changes
+        run: |
+          git config user.name "Dashboard Bot"
+          git config user.email "action@github.com"
+          git add index.html
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update dashboard $(date +%Y-%m-%d)"
+          git push
