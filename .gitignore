@@ -10,8 +10,8 @@ dashboard_data_v2.json
 *.json
 !data/germinares-emails.txt
 
-# Output (gerado automaticamente)
-output/
+# Output gerado pelo workflow (não versionar gerados localmente)
+# output/
 
 # Environment
 .env
