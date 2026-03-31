@@ -144,7 +144,7 @@ footer{padding:30px 0;text-align:center;color:var(--mu);font-size:10px;border-to
 <button class="fb a" data-f="all">Todos</button><button class="fb" data-f="saudavel">🟢</button><button class="fb" data-f="atencao">🟡</button><button class="fb" data-f="risco">🔴</button><button class="fb" data-f="inativo">💤</button><button class="fb" data-f="gh">💻 GitHub</button></div>
 <div class="cd" style="overflow-x:auto"><table><thead><tr>
 <th data-o="r">#</th><th data-o="n">Germinar</th><th data-o="hs">Score<br><small>/100</small></th>
-<th data-o="jd" style="border-left:2px solid rgba(33,194,94,0.3)">&#129001; Done<br><small>&#128336; sem. / &#128197; 30d</small></th>
+<th data-o="jd" style="border-left:2px solid rgba(33,194,94,0.3)" title="Atividades concluidas: ultimos 7 dias / ultimos 30 dias">&#129001; Done<br><small>7d &nbsp;/&nbsp; 30d</small></th>
 <th data-o="ji">🟢 WIP<br><small>issues em andamento</small></th>
 <th data-o="jo">🟢 Pendente<br><small>issues em backlog</small></th>
 <th data-o="jcy">🟢 Cycle Time<br><small>dias por issue</small></th>
@@ -359,7 +359,7 @@ tb.innerHTML+='<tr onclick="showModal(\''+r.e+'\')" title="Clique para ver ficha
 +'<td>'+r.r+'</td>'
 +'<td style="font-weight:600"><a href="'+jiraLink(r.e)+'" target="_blank" style="color:var(--tx);text-decoration:none" title="Ver todas as issues deste germinar no Jira (ultimos 30 dias)" onclick="event.stopPropagation()">'+r.n+' ↗</a>'+guTag+'</td>'
 +'<td><span class="hs-badge '+hsCls(r.hc)+'">'+r.hs+'</span></td>'
-+'<td style="border-left:2px solid rgba(33,194,94,0.15);text-align:center"><span style="color:#86efac;font-weight:800;font-size:14px">'+r.wk[3]+'</span><span style="color:var(--mu);font-size:10px;font-weight:400"> /'+r.jd+'</span><span style="display:block;font-size:9px;color:var(--mu);margin-top:2px">de '+r.jt+' atrib.</span></td>'
++'<td style="border-left:2px solid rgba(33,194,94,0.15);text-align:center">'+'<span style="color:#86efac;font-weight:800;font-size:15px">'+r.wk[3]+'</span>'+'<span style="color:var(--mu);font-size:11px;font-weight:500"> / '+(r.wk[0]+r.wk[1]+r.wk[2]+r.wk[3])+'</span>'+'<span style="display:block;font-size:9px;color:var(--mu);margin-top:1px">7d / 30d</span>'+'</td>'
 +'<td style="color:'+(r.ji>5?'#fca5a5':r.ji>3?'#fcd34d':'#93c5fd')+'">'+r.ji+'</td>'
 +'<td style="color:#fcd34d">'+r.jo+'</td>'
 +'<td>'+(r.jcy>0?r.jcy+'d':'—')+'</td>'
