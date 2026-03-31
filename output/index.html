@@ -234,7 +234,19 @@ document.getElementById('hRis').textContent=ris;
 
 // Helper: Jira JQL link for a user
 function jiraLink(email){return 'https://picpay.atlassian.net/issues/?jql=assignee%3D%22'+encodeURIComponent(email)+'%22%20AND%20updated%20%3E%3D%20-30d';}
-function jiraProjectLink(proj){return 'https://picpay.atlassian.net/browse/'+proj;}
+function jiraProjectLink(proj,emails){
+  if(emails && emails.length){
+    const chr34=String.fromCharCode(34);
+    const assignees=emails.map(function(e){return chr34+e+chr34;}).join(",");
+    const jql=encodeURIComponent('project = '+proj+' AND assignee in ('+assignees+') ORDER BY updated DESC');
+    return 'https://picpay.atlassian.net/issues/?jql='+jql;
+  }
+  return 'https://picpay.atlassian.net/browse/'+proj;
+}
+function jiraAllIssuesLink(proj){
+  const jql=encodeURIComponent('project = '+proj+' ORDER BY updated DESC');
+  return 'https://picpay.atlassian.net/issues/?jql='+jql;
+}
 function ghUserLink(user){return 'https://github.com/'+user;}
 function ghPrsLink(user){return 'https://github.com/pulls?q=is%3Apr+author%3A'+user+'+org%3APicPay+is%3Aclosed';}
 function ghReviewsLink(user){return 'https://github.com/pulls?q=is%3Apr+reviewed-by%3A'+user+'+org%3APicPay';}
@@ -263,8 +275,63 @@ const projBars=document.getElementById('projBars');
 if(projBars && P && P.length){
 const mx=Math.max(...P.map(p=>p.c));
 const cl=['#21C25E','#3B82F6','#8B5CF6','#F5A623','#EF4444','#06B6D4','#EC4899','#F97316','#14B8A6','#6366F1','#84CC16','#F43F5E','#22D3EE','#A855F7','#EAB308'];
-P.forEach((p,i)=>{const w=Math.round(p.c/mx*100);
-projBars.innerHTML+='<div class="bar-row"><div class="bar-nm"><a href="'+jiraProjectLink(p.n)+'" target="_blank" style="color:var(--bl);text-decoration:none" title="Abrir board do projeto '+p.n+' no Jira">'+p.n+' ↗</a></div><div class="bar-tr"><div class="bar-fl" style="width:'+w+'%;background:'+cl[i%cl.length]+'">'+p.c+' issues</div></div></div>';
+// Construir mapa projeto -> germinares
+const projMap={};
+G.forEach(g=>{
+  (g.jp||[]).forEach(proj=>{
+    if(!projMap[proj]) projMap[proj]=[];
+    projMap[proj].push({n:g.n,e:g.e,hs:g.hs,hc:g.hc});
+  });
+});
+
+P.forEach((p,i)=>{
+  const w=Math.round(p.c/mx*100);
+  const members=projMap[p.n]||[];
+  const emails=members.map(m=>m.e);
+  const jqlLink=jiraProjectLink(p.n,emails);
+  const allLink=jiraAllIssuesLink(p.n);
+  const uid='proj-'+p.n.replace(/[^a-z0-9]/gi,'');
+  
+  // Avatares dos germinares (max 5)
+  const avatars=members.slice(0,5).map(m=>{
+    const initials=m.n.split('.').map(x=>x[0].toUpperCase()).join('');
+    const cls=m.hc==='saudavel'?'#21C25E':m.hc==='atencao'?'#F5A623':'#EF4444';
+    return '<span title="'+m.n+' (HS:'+m.hs+')" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:'+cls+';color:#000;font-size:9px;font-weight:700;margin-left:-4px;border:1px solid #0A0E1A;cursor:default">'+initials+'</span>';
+  }).join('');
+  const extra=members.length>5?'<span style="font-size:9px;color:var(--mu);margin-left:4px">+' +(members.length-5)+'</span>':'';
+  
+  projBars.innerHTML+=
+    '<div style="margin-bottom:6px">'+
+    '<div class="bar-row" style="margin-bottom:3px">'+
+      '<div class="bar-nm">'+
+        '<a href="'+jqlLink+'" target="_blank" style="color:var(--bl);text-decoration:none;font-weight:700" title="Ver issues dos germinares neste projeto">'+p.n+'</a>'+
+      '</div>'+
+      '<div class="bar-tr" style="cursor:pointer" onclick="document.getElementById(\''+uid+'\').style.display=document.getElementById(\''+uid+'\').style.display===\'none\'?\'block\':\'none\'">'+
+        '<div class="bar-fl" style="width:'+w+'%;background:'+cl[i%cl.length]+'">'+p.c+' issues</div>'+
+      '</div>'+
+      '<div style="min-width:100px;padding-left:8px;display:flex;align-items:center">'+
+        avatars+extra+
+        '<span onclick="document.getElementById(\''+uid+'\').style.display=document.getElementById(\''+uid+'\').style.display===\'none\'?\'block\':\'none\'" style="cursor:pointer;font-size:10px;color:var(--mu);margin-left:6px">&#9660;</span>'+
+      '</div>'+
+    '</div>'+
+    '<div id="'+uid+'" style="display:none;background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;margin-left:66px;margin-bottom:4px">'+
+      '<div style="font-size:10px;color:var(--mu);margin-bottom:8px">'+
+        members.length+' germinares ativos &nbsp;|&nbsp; '+
+        '<a href="'+jqlLink+'" target="_blank" style="color:var(--gr)">Ver issues deles ↗</a>'+
+        ' &nbsp;|&nbsp; <a href="'+allLink+'" target="_blank" style="color:var(--mu)">Todas as issues ↗</a>'+
+      '</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+        members.map(m=>{
+          const mJql='https://picpay.atlassian.net/issues/?jql='+encodeURIComponent('project = '+p.n+' AND assignee = '+chr34+m.e+chr34+' ORDER BY updated DESC');
+          const cls=m.hc==='saudavel'?'rgba(33,194,94,0.15)':m.hc==='atencao'?'rgba(245,166,35,0.15)':'rgba(239,68,68,0.15)';
+          const tc=m.hc==='saudavel'?'#86efac':m.hc==='atencao'?'#fcd34d':'#fca5a5';
+          return '<a href="'+mJql+'" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;background:'+cls+';color:'+tc+';font-size:10px;font-weight:600;text-decoration:none" title="Ver issues de '+m.n+' em '+p.n+'">'+
+            m.n+' <span style="opacity:0.7">HS:'+m.hs+'</span>'+
+          '</a>';
+        }).join('')+
+      '</div>'+
+    '</div>'+
+    '</div>';
 });}
 
 // Table
