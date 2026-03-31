@@ -236,8 +236,7 @@ document.getElementById('hRis').textContent=ris;
 function jiraLink(email){return 'https://picpay.atlassian.net/issues/?jql=assignee%3D%22'+encodeURIComponent(email)+'%22%20AND%20updated%20%3E%3D%20-30d';}
 function jiraProjectLink(proj,emails){
   if(emails && emails.length){
-    const chr34=String.fromCharCode(34);
-    const assignees=emails.map(function(e){return chr34+e+chr34;}).join(",");
+    const assignees=emails.map(function(e){return '"'+e+'"';}).join(",");
     const jql=encodeURIComponent('project = '+proj+' AND assignee in ('+assignees+') ORDER BY updated DESC');
     return 'https://picpay.atlassian.net/issues/?jql='+jql;
   }
@@ -322,7 +321,7 @@ P.forEach((p,i)=>{
       '</div>'+
       '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
         members.map(m=>{
-          const mJql='https://picpay.atlassian.net/issues/?jql='+encodeURIComponent('project = '+p.n+' AND assignee = '+chr34+m.e+chr34+' ORDER BY updated DESC');
+          const mJql='https://picpay.atlassian.net/issues/?jql='+encodeURIComponent('project = '+p.n+' AND assignee = "'+m.e+'" ORDER BY updated DESC');
           const cls=m.hc==='saudavel'?'rgba(33,194,94,0.15)':m.hc==='atencao'?'rgba(245,166,35,0.15)':'rgba(239,68,68,0.15)';
           const tc=m.hc==='saudavel'?'#86efac':m.hc==='atencao'?'#fcd34d':'#fca5a5';
           return '<a href="'+mJql+'" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;background:'+cls+';color:'+tc+';font-size:10px;font-weight:600;text-decoration:none" title="Ver issues de '+m.n+' em '+p.n+'">'+
