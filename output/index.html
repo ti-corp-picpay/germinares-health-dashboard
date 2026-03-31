@@ -360,7 +360,7 @@ tb.innerHTML+='<tr onclick="showModal(\''+r.e+'\')" title="Clique para ver ficha
 +'<td>'+r.r+'</td>'
 +'<td style="font-weight:600"><a href="'+jiraLink(r.e)+'" target="_blank" style="color:var(--tx);text-decoration:none" title="Ver todas as issues deste germinar no Jira (ultimos 30 dias)" onclick="event.stopPropagation()">'+r.n+' ↗</a>'+guTag+'</td>'
 +'<td><span class="hs-badge '+hsCls(r.hc)+'">'+r.hs+'</span></td>'
-+'<td style="border-left:2px solid rgba(33,194,94,0.15);text-align:center" title="Ultima semana / ultimos 30 dias | Total atribuidas: '+r.jt+'"><span style="color:#86efac;font-weight:800;font-size:14px">'+r.wk[3]+'</span><span style="color:var(--mu);font-size:10px;font-weight:400"> /'+r.jd+'</span></td>'
++'<td style="border-left:2px solid rgba(33,194,94,0.15);text-align:center"><span style="color:#86efac;font-weight:800;font-size:14px">'+r.wk[3]+'</span><span style="color:var(--mu);font-size:10px;font-weight:400"> /'+r.jd+'</span><span style="display:block;font-size:9px;color:var(--mu);margin-top:2px">de '+r.jt+' atrib.</span></td>'
 +'<td style="color:'+(r.ji>5?'#fca5a5':r.ji>3?'#fcd34d':'#93c5fd')+'">'+r.ji+'</td>'
 +'<td style="color:#fcd34d">'+r.jo+'</td>'
 +'<td>'+(r.jcy>0?r.jcy+'d':'—')+'</td>'
